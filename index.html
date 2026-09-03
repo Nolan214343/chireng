@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#071426" />
+    <title>迟刃：断界迷城 · Android 下载</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+        background: #071426;
+        color: #eefaff;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        display: grid;
+        min-height: 100vh;
+        margin: 0;
+        place-items: center;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 15% 10%, rgba(34, 211, 238, .21), transparent 34rem),
+          radial-gradient(circle at 88% 78%, rgba(139, 92, 246, .22), transparent 30rem),
+          #071426;
+      }
+
+      main {
+        width: min(92vw, 680px);
+        padding: clamp(2rem, 7vw, 4.5rem);
+        text-align: center;
+      }
+
+      .mark {
+        display: grid;
+        width: 66px;
+        height: 66px;
+        margin: 0 auto 1.6rem;
+        place-items: center;
+        border: 1px solid rgba(165, 243, 252, .42);
+        border-radius: 21px;
+        color: #baf7ff;
+        background: rgba(34, 211, 238, .1);
+        box-shadow: 0 0 38px rgba(34, 211, 238, .18);
+        font-size: 2rem;
+      }
+
+      .tag {
+        margin: 0 0 .9rem;
+        color: #74e7f6;
+        font-size: .78rem;
+        font-weight: 700;
+        letter-spacing: .22em;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2.25rem, 9vw, 4.3rem);
+        line-height: 1;
+        letter-spacing: -.065em;
+      }
+
+      h1 span {
+        display: block;
+        margin-top: .25rem;
+        background: linear-gradient(95deg, #a5f3fc, #7dd3fc 48%, #c4b5fd);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .lead {
+        max-width: 37rem;
+        margin: 1.5rem auto 2rem;
+        color: #c4d5e8;
+        font-size: 1rem;
+        line-height: 1.85;
+      }
+
+      .download {
+        display: inline-flex;
+        min-height: 58px;
+        align-items: center;
+        justify-content: center;
+        gap: .7rem;
+        padding: 0 1.6rem;
+        border-radius: 17px;
+        color: #042433;
+        background: #67e8f9;
+        box-shadow: 0 18px 44px rgba(34, 211, 238, .27);
+        font-size: 1.05rem;
+        font-weight: 800;
+        text-decoration: none;
+        transition: transform .15s ease, background .15s ease;
+      }
+
+      .download:hover, .download:focus-visible {
+        background: #a5f3fc;
+        transform: translateY(-2px);
+      }
+
+      .meta {
+        margin-top: 1rem;
+        color: #8da5bf;
+        font-size: .86rem;
+      }
+
+      footer {
+        margin-top: 3.5rem;
+        color: #6d829a;
+        font-size: .76rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="mark" aria-hidden="true">✦</div>
+      <p class="tag">DELAYED BLADE · ANDROID</p>
+      <h1>迟刃<span>断界迷城</span></h1>
+      <p class="lead">
+        横屏高速动作试炼。冲进迷城、刻下归名印，再挥出灯令断刃。
+      </p>
+      <a class="download" href="./DelayedBlade-v1.5.20-Android.apk" download>
+        ↓ 下载 Android APK
+      </a>
+      <p class="meta">v1.5.20 · 21.9 MB · Android 7.0 及以上</p>
+      <footer>下载后直接安装 APK，无需解压。</footer>
+    </main>
+  </body>
+</html>
