@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#071426" />
-    <title>迟刃：断界迷城 · Android 下载</title>
+    <title>迟刃：断界迷城 · 下载</title>
     <style>
       :root {
         color-scheme: dark;
@@ -96,9 +96,26 @@
         transition: transform .15s ease, background .15s ease;
       }
 
+      .downloads {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: .85rem;
+      }
+
+      .download.windows {
+        color: #eefaff;
+        background: rgba(124, 100, 220, .78);
+        box-shadow: 0 18px 44px rgba(124, 100, 220, .24);
+      }
+
       .download:hover, .download:focus-visible {
         background: #a5f3fc;
         transform: translateY(-2px);
+      }
+
+      .download.windows:hover, .download.windows:focus-visible {
+        background: #927de5;
       }
 
       .meta {
@@ -117,16 +134,21 @@
   <body>
     <main>
       <div class="mark" aria-hidden="true">✦</div>
-      <p class="tag">DELAYED BLADE · ANDROID</p>
+      <p class="tag">DELAYED BLADE · MOBILE / WINDOWS</p>
       <h1>迟刃<span>断界迷城</span></h1>
       <p class="lead">
         横屏高速动作试炼。冲进迷城、刻下归名印，再挥出灯令断刃。
       </p>
-      <a class="download" href="./DelayedBlade-v1.5.20-Android.apk" download>
-        ↓ 下载 Android APK
-      </a>
-      <p class="meta">v1.5.20 · 21.9 MB · Android 7.0 及以上</p>
-      <footer>下载后直接安装 APK，无需解压。</footer>
+      <div class="downloads">
+        <a class="download" href="./DelayedBlade-v1.5.20-Android.apk" download>
+          ↓ 安卓下载
+        </a>
+        <a class="download windows" href="https://github.com/Nolan20121102/delayed-blade-download/releases/download/v1.5.20/DelayedBlade-v1.5.20-Windows-x64.zip">
+          ↓ 下载 Windows 64 位版
+        </a>
+      </div>
+      <p class="meta">v1.5.20 · Android 7.0+ · Windows 10/11 64 位</p>
+      <footer>Android 版直接安装 APK；Windows 版下载后解压并启动 DelayedBlade.exe。</footer>
     </main>
   </body>
 </html>
