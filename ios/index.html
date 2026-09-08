@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#070d1f" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>迟刃：断界迷城</title>
+    <style>
+      :root { color-scheme: dark; font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif; background: #050816; color: #eefaff; }
+      * { box-sizing: border-box; }
+      html, body { width: 100%; min-height: 100%; margin: 0; overflow: hidden; background: #050816; }
+      button { font: inherit; -webkit-tap-highlight-color: transparent; }
+      #app { position: relative; width: min(100vw, 177.78svh); aspect-ratio: 16 / 9; margin: auto; overflow: hidden; background: #08112a; border: 2px solid #237194; box-shadow: 0 0 0 1px #020711 inset, 0 20px 80px #000a; }
+      canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; touch-action: none; }
+      #app::before, #app::after { position: absolute; z-index: 8; width: 18px; height: 18px; content: ""; pointer-events: none; }
+      #app::before { top: 8px; left: 8px; border-top: 2px solid #58e9ff; border-left: 2px solid #58e9ff; }
+      #app::after { right: 8px; bottom: 8px; border-right: 2px solid #58e9ff; border-bottom: 2px solid #58e9ff; }
+      #hud { position: absolute; z-index: 7; top: 9px; left: 12px; right: 12px; display: flex; justify-content: space-between; gap: 8px; pointer-events: none; }
+      .hud-box { min-width: 72px; padding: 3px 7px; border: 1px solid #3c7998; background: #061127d9; color: #dffaff; font-size: clamp(10px, 1.5vw, 15px); font-weight: 800; text-align: center; }
+      .hud-box small { display: block; color: #7cc7df; font-size: .72em; font-weight: 600; }
+      #hint { position: absolute; z-index: 10; left: 50%; bottom: 31%; display: none; padding: 5px 9px; border: 1px solid #d4fbff; background: #031426e8; color: #fff; font-size: clamp(11px, 1.5vw, 15px); font-weight: 800; transform: translateX(-50%); pointer-events: none; }
+      #hint b { margin-right: 6px; padding: 1px 4px; border: 1px solid #baf4ff; background: #24516e; }
+      #hotbar { position: absolute; z-index: 10; left: 50%; bottom: 8px; display: none; width: min(54%, 400px); grid-template-columns: repeat(5, 1fr); gap: 4px; transform: translateX(-50%); }
+      .weapon { min-width: 0; min-height: 46px; padding: 2px; border: 1px solid #2c5275; background: #07152ce8; color: #b9cfe0; cursor: pointer; }
+      .weapon.active { border-color: #7ceeff; background: #164567; color: #fff; box-shadow: 0 0 14px #4de0ff66; }
+      .weapon i { display: block; color: var(--c); font-size: 24px; font-style: normal; line-height: 24px; text-shadow: 0 0 10px var(--c); }
+      .weapon span { display: block; overflow: hidden; font-size: clamp(8px, 1.05vw, 12px); font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+      #controls { position: absolute; z-index: 12; inset: 0; display: none; pointer-events: none; }
+      #stick { position: absolute; bottom: 13px; left: 15px; width: clamp(74px, 17vw, 118px); height: clamp(74px, 17vw, 118px); border: 2px solid #9cecff9c; border-radius: 50%; background: radial-gradient(circle, #3bb9de44 0 24%, transparent 25%), #05152a99; pointer-events: auto; touch-action: none; }
+      #knob { position: absolute; top: 50%; left: 50%; width: 43%; height: 43%; border: 2px solid #b5f7ff; border-radius: 50%; background: #54d4ee66; box-shadow: 0 0 16px #4adfff; transform: translate(-50%, -50%); }
+      #actions { position: absolute; right: 14px; bottom: 12px; display: grid; grid-template-columns: 58px 72px; grid-template-rows: 42px 42px; gap: 5px; pointer-events: auto; }
+      #actions button { border: 1px solid #89eaff; border-radius: 50%; background: #0a3156e8; color: #effeff; font-size: clamp(10px, 1.6vw, 16px); font-weight: 900; touch-action: manipulation; }
+      #actions #slash { grid-row: span 2; border-color: #ffdb92; background: #6a3e1ce8; }
+      #actions #enter { border-color: #88ffd7; }
+      .overlay { position: absolute; z-index: 30; inset: 0; display: grid; place-items: center; padding: 18px; background: linear-gradient(135deg, #020713f0, #102959dd); }
+      .panel { width: min(620px, 92%); padding: clamp(18px, 4vw, 32px); border: 2px solid #54dff7; background: linear-gradient(130deg, #315a8b44, transparent 50%), #071126f5; box-shadow: 0 0 0 5px #317fb322, 0 20px 48px #0009; text-align: center; }
+      .eyebrow { margin: 0; color: #84d8ee; font-size: clamp(11px, 1.4vw, 16px); font-weight: 800; letter-spacing: .12em; }
+      h1, h2 { margin: 8px 0; color: #dffbff; font-size: clamp(26px, 4.5vw, 50px); letter-spacing: .08em; text-shadow: 0 0 18px #54eaff88; }
+      p { color: #c8d9e9; line-height: 1.65; }
+      #crystals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin: 18px 0; }
+      .crystal { min-height: 42px; border: 1px solid #375f82; background: #0b1b38; color: #dff5ff; cursor: pointer; font-weight: 800; }
+      .crystal::before { display: inline-block; width: 9px; height: 9px; margin-right: 6px; background: var(--c); box-shadow: 0 0 12px var(--c); content: ""; transform: rotate(45deg); }
+      .crystal.active { border-color: var(--c); background: color-mix(in srgb, var(--c) 20%, #0b1b38); }
+      .primary { min-width: 180px; min-height: 46px; border: 1px solid #70ecff; background: linear-gradient(#1a5686, #0c2e51); color: #fff; cursor: pointer; font-weight: 900; letter-spacing: .1em; }
+      .help { margin-bottom: 0; font-size: clamp(11px, 1.4vw, 15px); }
+      .hidden { display: none !important; }
+      @media (hover: hover) and (pointer: fine) { #controls { display: none !important; } }
+      @media (max-width: 700px) { .hud-box { min-width: 51px; padding: 2px 4px; } #hotbar { bottom: 4px; width: 48%; gap: 2px; } .weapon { min-height: 34px; } .weapon i { font-size: 18px; line-height: 18px; } .weapon span { font-size: 7px; } #actions { grid-template-columns: 53px 62px; grid-template-rows: 38px 38px; } }
+      @media (orientation: portrait) and (max-width: 900px) { #app::before { content: "请横屏游玩"; position: fixed; inset: 0; width: auto; height: auto; display: grid; place-items: center; border: 0; background: #071126; color: #effbff; font-size: 22px; font-weight: 900; } }
+    </style>
+  </head>
+  <body>
+    <main id="app">
+      <canvas id="game" width="480" height="270">你的浏览器不支持 Canvas。</canvas>
+      <div id="hud"><div class="hud-box"><small>灯火</small><span id="hp">● ● ●</span></div><div class="hud-box"><small>迷城行进</small><span id="room">待命</span></div><div class="hud-box"><small>归名印</small><span id="marks">0</span></div></div>
+      <div id="hint"><b>F</b><span>进入</span></div>
+      <nav id="hotbar" aria-label="武器栏"></nav>
+      <div id="controls"><div id="stick"><i id="knob"></i></div><div id="actions"><button id="dash" type="button">冲刺</button><button id="slash" type="button">挥刀</button><button id="enter" type="button">进入</button></div></div>
+      <section id="start" class="overlay"><div class="panel"><p class="eyebrow">SAFARI 浏览器版 · 横屏游玩</p><h1>迟刃：断界迷城</h1><p>冲刺穿过敌人留下归名印，再挥刀遣返所有标记者。</p><div id="crystals"></div><button id="begin" class="primary" type="button">进入迷城</button><p class="help">触屏：摇杆移动 · 冲刺刻印 · 挥刀遣返<br />键盘：WASD / 方向键 · 空格冲刺 · J 挥刀 · F 进入</p></div></section>
+      <section id="ending" class="overlay hidden"><div class="panel"><p id="endLead" class="eyebrow">终室已净</p><h2 id="endTitle">烬灯重新点亮</h2><p id="endCopy">你已遣返这座迷城中的所有失名者。</p><button id="again" class="primary" type="button">再入迷城</button></div></section>
+    </main>
+    <script>
+      const canvas = document.getElementById("game");
+      const ctx = canvas.getContext("2d", { alpha: false });
+      ctx.imageSmoothingEnabled = false;
+      const $ = (id) => document.getElementById(id);
+      const ui = { start: $("start"), ending: $("ending"), begin: $("begin"), again: $("again"), crystals: $("crystals"), hotbar: $("hotbar"), controls: $("controls"), hp: $("hp"), room: $("room"), marks: $("marks"), hint: $("hint"), hintText: $("hint").querySelector("span"), dash: $("dash"), slash: $("slash"), enter: $("enter"), stick: $("stick"), knob: $("knob"), endLead: $("endLead"), endTitle: $("endTitle"), endCopy: $("endCopy") };
+      const W = 480, H = 270, TAU = Math.PI * 2;
+      const crystals = [{ name: "风晶石", c: "#8ff4d0" }, { name: "蚀晶石", c: "#b5ed68" }, { name: "雷晶石", c: "#d09bff" }, { name: "火晶石", c: "#ff9c61" }, { name: "冰晶石", c: "#76d9ff" }, { name: "幽晶石", c: "#d98bff" }];
+      const weapons = [{ n: "蚀印短刃", g: "╱", c: "#84f1c2", r: 30, d: 2, cd: .28 }, { n: "裂印巨斧", g: "ᚲ", c: "#ffca7d", r: 41, d: 3, cd: .5 }, { n: "链枷", g: "✣", c: "#d89cff", r: 52, d: 3, cd: .63 }, { n: "刻印弩", g: "➤", c: "#7ce7ff", r: 132, d: 2, cd: .42, shot: true }, { n: "震鸣锤", g: "⬟", c: "#b4c3ff", r: 47, d: 2, cd: .78, pulse: true }];
+      const rooms = [{ n: "第一境 · 无锋街", c: 4 }, { n: "第二境 · 烛雨巷", c: 5 }, { n: "第三境 · 断桥口", c: 6 }, { n: "终室 · 灰烬守门者", c: 1, boss: true }];
+      const state = { live: false, crystal: 2, weapon: 0, room: 0, enemies: [], shots: [], sparks: [], gate: null, attack: 0, cooldown: 0, dash: 0, dashCd: 0, moveX: 0, moveY: 0, marks: 0, last: 0 };
+      const player = { x: 92, y: 144, face: 0, hp: 3, hurt: 0 };
+      const keys = new Set();
+      let stickId = null;
+      const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+      const dist = (a, b, c, d) => Math.hypot(a - c, b - d);
+      function crystal() { return crystals[state.crystal]; }
+      function weapon() { return weapons[state.weapon]; }
+      function buildMenu() {
+        ui.crystals.innerHTML = crystals.map((x, i) => `<button class="crystal ${i === state.crystal ? "active" : ""}" style="--c:${x.c}" data-c="${i}" type="button">${x.name}</button>`).join("");
+        ui.crystals.querySelectorAll("button").forEach((b) => b.onclick = () => { state.crystal = Number(b.dataset.c); buildMenu(); });
+        ui.hotbar.innerHTML = weapons.map((x, i) => `<button class="weapon ${i === state.weapon ? "active" : ""}" style="--c:${x.c}" data-w="${i}" type="button"><i>${x.g}</i><span>${x.n}</span></button>`).join("");
+        ui.hotbar.querySelectorAll("button").forEach((b) => b.onclick = () => { state.weapon = Number(b.dataset.w); buildMenu(); });
+      }
+      function spawnRoom() {
+        state.enemies = []; state.shots = []; state.gate = null; player.x = 90; player.y = 145;
+        const info = rooms[state.room];
+        for (let i = 0; i < info.c; i++) {
+          const boss = info.boss;
+          state.enemies.push({ x: boss ? 360 : 210 + Math.random() * 210, y: boss ? 140 : 70 + Math.random() * 140, r: boss ? 15 : 7 + Math.random() * 3, hp: boss ? 24 : 3 + (i % 3), max: boss ? 24 : 3 + (i % 3), speed: boss ? 18 : 15 + Math.random() * 10, boss, cd: .7 + Math.random(), mark: 0, flash: 0 });
+        }
+        toast(`进入${info.n}`);
+      }
+      function begin() {
+        state.live = true; state.room = 0; state.marks = 0; state.attack = 0; state.cooldown = 0; state.dash = 0; state.dashCd = 0; player.hp = 3; player.hurt = 0;
+        ui.start.classList.add("hidden"); ui.ending.classList.add("hidden"); ui.hotbar.style.display = "grid"; ui.controls.style.display = "block"; spawnRoom(); canvas.focus();
+      }
+      function toast(text) { ui.hintText.textContent = text; ui.hint.style.display = "block"; clearTimeout(toast.timer); toast.timer = setTimeout(() => { if (!nearGate()) ui.hint.style.display = "none"; }, 1050); }
+      function nearGate() { return state.gate && dist(player.x, player.y, state.gate.x, state.gate.y) < 31; }
+      function interact() {
+        if (!state.live || !nearGate()) return;
+        state.room += 1;
+        if (state.room >= rooms.length) { end(true); return; }
+        spawnRoom();
+      }
+      function end(win) {
+        state.live = false; ui.hotbar.style.display = "none"; ui.controls.style.display = "none"; ui.ending.classList.remove("hidden");
+        ui.endLead.textContent = win ? "终室已净" : "灯火熄灭"; ui.endTitle.textContent = win ? "烬灯重新点亮" : "归名印断裂"; ui.endCopy.textContent = win ? `你累计刻下 ${state.marks} 枚归名印。` : "稍作休整，再度踏入迷城。";
+      }
+      function dash() {
+        if (!state.live || state.dashCd > 0) return;
+        let x = state.moveX, y = state.moveY;
+        if (!x && !y) { x = Math.cos(player.face); y = Math.sin(player.face); }
+        const length = Math.hypot(x, y) || 1; state.moveX = x / length; state.moveY = y / length; state.dash = .18; state.dashCd = .72; spark(player.x, player.y, crystal().c, 14);
+      }
+      function attack() {
+        if (!state.live || state.cooldown > 0) return;
+        const w = weapon(); state.cooldown = w.cd; state.attack = .16; spark(player.x + Math.cos(player.face) * 13, player.y + Math.sin(player.face) * 13, w.c, 8);
+        if (w.shot) { state.shots.push({ x: player.x, y: player.y, vx: Math.cos(player.face) * 155, vy: Math.sin(player.face) * 155, life: .95, w }); return; }
+        for (const e of state.enemies) {
+          const angle = Math.atan2(e.y - player.y, e.x - player.x); const delta = Math.atan2(Math.sin(angle - player.face), Math.cos(angle - player.face));
+          if (dist(player.x, player.y, e.x, e.y) < w.r && (w.pulse || Math.abs(delta) < .95)) hit(e, w.d);
+        }
+      }
+      function hit(enemy, damage) { enemy.hp -= damage; enemy.mark = 1.1; enemy.flash = .16; state.marks += 1; spark(enemy.x, enemy.y, crystal().c, 9); }
+      function spark(x, y, color, count) { for (let i = 0; i < count; i++) { const a = Math.random() * TAU, speed = 12 + Math.random() * 32; state.sparks.push({ x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, t: .35 + Math.random() * .32, color }); } }
+      function hurt() { if (player.hurt > 0) return; player.hp -= 1; player.hurt = .78; spark(player.x, player.y, "#ff91a3", 12); if (navigator.vibrate) navigator.vibrate(18); if (player.hp <= 0) end(false); }
+      function update(dt) {
+        if (!state.live) return;
+        state.cooldown = Math.max(0, state.cooldown - dt); state.dashCd = Math.max(0, state.dashCd - dt); state.attack = Math.max(0, state.attack - dt); state.dash = Math.max(0, state.dash - dt); player.hurt = Math.max(0, player.hurt - dt);
+        let mx = state.moveX + (keys.has("KeyD") || keys.has("ArrowRight") ? 1 : 0) - (keys.has("KeyA") || keys.has("ArrowLeft") ? 1 : 0);
+        let my = state.moveY + (keys.has("KeyS") || keys.has("ArrowDown") ? 1 : 0) - (keys.has("KeyW") || keys.has("ArrowUp") ? 1 : 0);
+        const m = Math.hypot(mx, my); if (m) { mx /= m; my /= m; player.face = Math.atan2(my, mx); }
+        const speed = state.dash > 0 ? 208 : 72; player.x = clamp(player.x + mx * speed * dt, 28, 452); player.y = clamp(player.y + my * speed * dt, 52, 241);
+        for (const e of state.enemies) {
+          e.cd -= dt; e.mark = Math.max(0, e.mark - dt); e.flash = Math.max(0, e.flash - dt);
+          const dx = player.x - e.x, dy = player.y - e.y, d = Math.hypot(dx, dy) || 1; e.x += dx / d * e.speed * dt; e.y += dy / d * e.speed * dt;
+          if (state.dash > 0 && d < e.r + 10 && e.mark <= .15) hit(e, 1);
+          if (d < e.r + 8 && e.cd <= 0) { hurt(); e.cd = e.boss ? .65 : 1.1; }
+        }
+        for (const s of state.shots) { s.x += s.vx * dt; s.y += s.vy * dt; s.life -= dt; for (const e of state.enemies) if (s.life > 0 && dist(s.x, s.y, e.x, e.y) < e.r + 4) { hit(e, s.w.d); s.life = 0; } }
+        state.shots = state.shots.filter((s) => s.life > 0 && s.x > 20 && s.x < 460 && s.y > 44 && s.y < 248);
+        for (const p of state.sparks) { p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= .9; p.vy *= .9; p.t -= dt; }
+        state.sparks = state.sparks.filter((p) => p.t > 0); state.enemies = state.enemies.filter((e) => e.hp > 0);
+        if (!state.enemies.length && !state.gate) { state.gate = { x: 430, y: 145 }; toast("靠近灯门后按 F 进入"); }
+        if (nearGate()) { ui.hintText.textContent = state.room === rooms.length - 1 ? "离开" : "进入"; ui.hint.style.display = "block"; } else if (!toast.timer) ui.hint.style.display = "none";
+      }
+      function rect(x, y, w, h, c) { ctx.fillStyle = c; ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); }
+      function draw() {
+        ctx.fillStyle = "#070e21"; ctx.fillRect(0, 0, W, H); rect(23, 47, 434, 199, "#101d3e"); rect(27, 51, 426, 191, "#0b1732");
+        for (let y = 52; y < 242; y += 16) for (let x = 28; x < 453; x += 16) { rect(x, y, 14, 14, ((x + y) / 16) % 2 ? "#0e1a38" : "#0b1732"); if ((x + y) % 80 === 0) rect(x + 4, y + 4, 2, 2, "#19406b"); }
+        [[178, 77], [281, 204], [402, 112]].forEach(([x, y]) => { rect(x - 7, y, 14, 26, "#071124"); rect(x - 9, y - 5, 18, 6, "#253e5c"); rect(x - 6, y - 8, 12, 3, "#547a96"); });
+        if (state.gate) { const p = .55 + Math.sin(performance.now() / 120) * .18; ctx.globalAlpha = p; rect(state.gate.x - 17, state.gate.y - 28, 34, 56, crystal().c); ctx.globalAlpha = 1; ctx.strokeStyle = "#e1fbff"; ctx.lineWidth = 2; ctx.strokeRect(state.gate.x - 12, state.gate.y - 23, 24, 46); }
+        for (const s of state.shots) { rect(s.x - 2, s.y - 2, 4, 4, s.w.c); }
+        for (const e of state.enemies) { if (e.mark > 0) { ctx.globalAlpha = .4 + Math.sin(performance.now() / 70) * .2; rect(e.x - e.r - 4, e.y - e.r - 4, (e.r + 4) * 2, (e.r + 4) * 2, crystal().c); ctx.globalAlpha = 1; } rect(e.x - e.r, e.y - e.r, e.r * 2, e.r * 2, e.flash ? "#fff3c6" : e.boss ? "#9b536b" : "#a7728d"); rect(e.x - 3, e.y - e.r - 5, 6, 5, e.boss ? "#ffc080" : "#e9afb0"); if (e.boss) { rect(e.x - 10, e.y - 14, 20, 2, "#4d293b"); rect(e.x - 9, e.y - 13, 18 * e.hp / e.max, 2, "#ffb174"); } }
+        const glow = player.hurt > 0 ? "#ff9bad" : "#5a8dbb"; rect(player.x - 5, player.y - 4, 10, 13, glow); rect(player.x - 4, player.y - 12, 8, 8, "#f1c28c"); rect(player.x - 5, player.y - 15, 10, 3, "#202d48"); ctx.save(); ctx.translate(player.x, player.y); ctx.rotate(player.face); rect(4, -2, 13, 3, "#dcfaff"); rect(16, -2, 5, 3, crystal().c); if (state.attack > 0) { ctx.strokeStyle = weapon().c; ctx.lineWidth = weapon().pulse ? 4 : 3; ctx.beginPath(); if (weapon().pulse) ctx.arc(0, 0, weapon().r * (1 - state.attack / .16 * .35), 0, TAU); else ctx.arc(0, 0, weapon().r, -.85, .85); ctx.stroke(); } ctx.restore();
+        for (const p of state.sparks) { ctx.globalAlpha = clamp(p.t / .55, 0, 1); rect(p.x, p.y, 2, 2, p.color); } ctx.globalAlpha = 1;
+        ui.hp.textContent = Array.from({ length: 3 }, (_, index) => index < player.hp ? "●" : "○").join(" "); ui.room.textContent = state.live ? rooms[state.room].n : "待命"; ui.marks.textContent = state.marks;
+      }
+      function frame(t) { const dt = Math.min(.034, (t - state.last || 0) / 1000); state.last = t; update(dt); draw(); requestAnimationFrame(frame); }
+      function setStick(event) { const r = ui.stick.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2, rad = r.width * .32; let x = event.clientX - cx, y = event.clientY - cy, d = Math.hypot(x, y); if (d > rad) { x *= rad / d; y *= rad / d; } state.moveX = x / rad; state.moveY = y / rad; ui.knob.style.transform = `translate(calc(-50% + ${Math.round(x)}px), calc(-50% + ${Math.round(y)}px))`; }
+      function releaseStick() { stickId = null; state.moveX = 0; state.moveY = 0; ui.knob.style.transform = "translate(-50%, -50%)"; }
+      function aim(event) { const r = canvas.getBoundingClientRect(); player.face = Math.atan2((event.clientY - r.top) * H / r.height - player.y, (event.clientX - r.left) * W / r.width - player.x); }
+      buildMenu(); ui.begin.onclick = begin; ui.again.onclick = begin; ui.dash.onclick = dash; ui.slash.onclick = attack; ui.enter.onclick = interact;
+      ui.stick.addEventListener("pointerdown", (e) => { stickId = e.pointerId; ui.stick.setPointerCapture(e.pointerId); setStick(e); }); ui.stick.addEventListener("pointermove", (e) => { if (e.pointerId === stickId) setStick(e); }); ui.stick.addEventListener("pointerup", releaseStick); ui.stick.addEventListener("pointercancel", releaseStick);
+      canvas.addEventListener("pointerdown", (e) => { if (e.pointerType === "mouse" && state.live) { aim(e); attack(); } }); canvas.addEventListener("pointermove", (e) => { if (e.pointerType === "mouse" && state.live) aim(e); });
+      window.addEventListener("keydown", (e) => { keys.add(e.code); if (["Space", "KeyJ", "KeyF", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.code)) e.preventDefault(); if (e.code === "Space") dash(); if (e.code === "KeyJ") attack(); if (e.code === "KeyF") interact(); if (/^Digit[1-5]$/.test(e.code)) { state.weapon = Number(e.code.slice(5)) - 1; buildMenu(); } if (e.code === "Enter" && !state.live && !ui.start.classList.contains("hidden")) begin(); });
+      window.addEventListener("keyup", (e) => keys.delete(e.code)); requestAnimationFrame(frame);
+    </script>
+  </body>
+</html>
