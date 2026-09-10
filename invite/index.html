@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#071426" />
+    <meta name="robots" content="noindex" />
+    <title>迟刃 · 协战邀请</title>
+    <style>
+      :root { color-scheme: dark; font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif; background: #071426; color: #eefaff; }
+      * { box-sizing: border-box; }
+      body { display: grid; min-height: 100vh; margin: 0; place-items: center; background: radial-gradient(circle at 13% 10%, rgba(34, 211, 238, .22), transparent 31rem), radial-gradient(circle at 86% 82%, rgba(171, 94, 255, .25), transparent 30rem), #071426; }
+      main { width: min(92vw, 660px); padding: clamp(2rem, 8vw, 4.8rem) 1.2rem; text-align: center; }
+      .sigil { display: grid; width: 68px; height: 68px; margin: 0 auto 1.5rem; place-items: center; border: 1px solid rgba(194, 142, 255, .63); border-radius: 22px; color: #f0d9ff; background: rgba(154, 94, 238, .16); box-shadow: 0 0 42px rgba(168, 85, 247, .26); font-size: 2rem; }
+      .tag { margin: 0 0 .75rem; color: #a5f3fc; font-size: .76rem; font-weight: 800; letter-spacing: .19em; }
+      h1 { margin: 0; font-size: clamp(2rem, 8vw, 3.55rem); line-height: 1.1; }
+      .lead { max-width: 38rem; margin: 1.2rem auto 1.5rem; color: #c4d5e8; line-height: 1.8; }
+      .room-card { margin: 1.35rem auto; padding: 1.1rem 1.2rem 1.25rem; border: 1px solid rgba(155, 183, 255, .32); border-radius: 20px; background: rgba(5, 14, 39, .68); box-shadow: 0 20px 55px rgba(0, 0, 0, .23); }
+      .room-label { color: #9bb4d6; font-size: .84rem; }
+      #room-code { display: block; margin-top: .42rem; color: #f1d5ff; font-size: clamp(2.3rem, 11vw, 4.1rem); font-weight: 900; letter-spacing: .18em; line-height: 1.1; }
+      .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: .8rem; margin-top: 1.45rem; }
+      .button { display: inline-flex; min-height: 54px; align-items: center; justify-content: center; padding: 0 1.35rem; border: 0; border-radius: 16px; color: #062533; background: #70e8f8; box-shadow: 0 16px 37px rgba(34, 211, 238, .22); cursor: pointer; font: inherit; font-size: 1rem; font-weight: 800; text-decoration: none; }
+      .button.secondary { color: #ecf7ff; background: rgba(101, 89, 183, .76); box-shadow: 0 16px 37px rgba(101, 89, 183, .2); }
+      .button:focus-visible, .button:hover { transform: translateY(-2px); }
+      .button[aria-disabled="true"] { pointer-events: none; opacity: .45; }
+      .note { max-width: 38rem; margin: 1.35rem auto 0; color: #91a7c2; font-size: .87rem; line-height: 1.75; }
+      .status { min-height: 1.4rem; margin: 1rem 0 0; color: #a5f3fc; font-size: .87rem; }
+      footer { margin-top: 3.2rem; color: #687e99; font-size: .76rem; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="sigil" aria-hidden="true">✦</div>
+      <p class="tag">DELAYED BLADE · CO-OP INVITE</p>
+      <h1>有人邀请你进入协战房间</h1>
+      <p class="lead">安装了 Windows 协战版时，点击“打开迟刃”即可自动加入。房间码也可手动复制、粘贴到游戏封面的“双方协战”。</p>
+      <section class="room-card" aria-label="协战房间码"><span class="room-label">协战房间码</span><strong id="room-code">——</strong></section>
+      <div class="actions">
+        <a id="open-game" class="button" href="./" aria-disabled="true">▶ 打开迟刃并加入</a>
+        <button id="copy-code" class="button secondary" type="button" disabled>复制房间码</button>
+        <a class="button secondary" href="../DelayedBlade-v1.5.22-Windows-x64.zip" download>↓ 下载 Windows 协战版</a>
+      </div>
+      <p id="status" class="status" aria-live="polite"></p>
+      <p class="note">第一次使用前，请先正常启动一次新版 <strong>DelayedBlade.exe</strong>；它会为当前 Windows 用户登记邀请入口。微信等内置浏览器可能要求改用系统浏览器打开，或拦截外部应用唤起，此时复制房间码后手动加入即可。</p>
+      <footer><a href="../" style="color:inherit">返回《迟刃：断界迷城》下载页</a> · 邀请链接只包含房间码，不包含账号、云存档或登录凭据。</footer>
+    </main>
+    <script>
+      (() => {
+        const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        const value = (new URLSearchParams(window.location.search).get("room") || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+        const valid = value.length === 6 && [...value].every((character) => alphabet.includes(character));
+        const roomCode = document.getElementById("room-code");
+        const openGame = document.getElementById("open-game");
+        const copyCode = document.getElementById("copy-code");
+        const status = document.getElementById("status");
+        if (!valid) {
+          roomCode.textContent = "链接无效";
+          status.textContent = "请让房主重新在游戏内复制一条邀请链接。";
+          return;
+        }
+        roomCode.textContent = value;
+        openGame.href = "delayedblade://join?room=" + encodeURIComponent(value);
+        openGame.removeAttribute("aria-disabled");
+        copyCode.disabled = false;
+        copyCode.addEventListener("click", async () => {
+          try { await navigator.clipboard.writeText(value); status.textContent = "房间码已复制：" + value; }
+          catch (_) { status.textContent = "复制失败，请手动记下房间码：" + value; }
+        });
+        openGame.addEventListener("click", () => { status.textContent = "正在请求打开迟刃；如浏览器没有唤起游戏，请下载新版或复制房间码手动加入。"; });
+      })();
+    </script>
+  </body>
+</html>
